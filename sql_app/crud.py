@@ -5,6 +5,8 @@ def get_db_user(db: Session, username : str):
     return db.query(models.User).filter_by(username=username).first()
 def get_db_candidates(db: Session):
     return db.query(models.Candidate).all()
+def get_db_candidate(db: Session, codestr : str):
+    return db.query(models.Candidate).filter_by(short_code =codestr).first()
 def get_db_parties(db: Session):
     return db.query(models.Party).all()
 def get_position(db: Session):

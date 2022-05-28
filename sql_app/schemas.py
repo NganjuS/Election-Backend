@@ -4,7 +4,6 @@ from typing import List, Optional,Union
 
 from pydantic import BaseModel
 
-
 class PartyBase(BaseModel):
     name : str
     short_code : str
@@ -43,12 +42,14 @@ class CandidateBase(BaseModel):
     dateofbirth : date
     imageurl : str
     is_active : bool
-    position : Position
-    party = Party
+    position_id : int
+    party_id : int
 class CandidateCreate(CandidateBase):
     pass
 class Candidate(CandidateBase):
     id : int
+    position : Position
+    party : Party
     class Config:
         orm_mode = True
 class UserBase(BaseModel):

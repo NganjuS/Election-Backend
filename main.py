@@ -10,12 +10,26 @@ from sql_app import crud, models, schemas
 from sqlalchemy.orm import Session
 from sql_app.database import SessionLocal, engine
 import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+
+app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 # to get a string like this run:
 # openssl rand -hex 32
 SECRET_KEY = "cfd4cf823c32453770673729540f61ee70ccb940474ea7c1e455bfd52a6fe292"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
+origins = [
+    "http://localhost:3000",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def get_db():
     db = SessionLocal()
@@ -37,7 +51,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-app = FastAPI()
+
 
 
 def verify_password(plain_password, hashed_password):
@@ -137,6 +151,9 @@ async def create_candidate(candidate: schemas.CandidateCreate, db: Session = Dep
 @app.get("/getcandidates", response_model=List[schemas.Candidate])
 async def get_candidates(db: Session = Depends(get_db)):
     return crud.get_db_candidates(db)
+@app.get("/getcandidate", response_model=schemas.Candidate)
+async def get_candidate(codestr : str, db: Session = Depends(get_db)):
+    return crud.get_db_candidate(db, codestr)
 @app.get("/positions/", response_model=List[schemas.Position])
 def read_positions(db: Session = Depends(get_db)):
     return crud.get_position(db) 
