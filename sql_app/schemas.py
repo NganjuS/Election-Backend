@@ -1,6 +1,8 @@
+from __future__ import annotations
 from datetime import date
 from dis import show_code
 from typing import List, Optional,Union
+
 
 from pydantic import BaseModel
 
@@ -24,7 +26,16 @@ class Party(PartyBase):
     id : int
     class Config:
         orm_mode = True
+class CountyBase(BaseModel):
+    code : str
+    name : str
+class CountyCreate(CountyBase):
+    pass
 
+class County(CountyBase):
+    id : int
+    class Config:
+        orm_mode = True
 class PositionBase(BaseModel):
     name : str
 
@@ -35,23 +46,34 @@ class Position(PositionBase):
     class Config:
         orm_mode = True
 class CandidateBase(BaseModel):
-    fullnames : str
-    short_code : str
-    age  : int
-    weight : int
-    dateofbirth : date
-    imageurl : str
-    is_active : bool
-    position_id : int
-    party_id : int
+    fullnames : Union[str, None]
+    short_code : Union[str, None]
+    age  : Union[int, None]
+    weight : Union[int, None]
+    dateofbirth : Union[date, None]
+    imageurl : Union[str, None]
+    is_active : Union[bool, None]
+    slogan : Union[str, None] = None
+    color : Union[str, None] = None
+    position_id : Union[int, None]
+    party_id : Union[int, None]
+    county_id : Union[int, None] = None
+    deputy_id : Union[int, None] = None
 class CandidateCreate(CandidateBase):
     pass
-class Candidate(CandidateBase):
-    id : int
-    position : Position
-    party : Party
+class CandidateUpdate(CandidateBase):
+    id : int = None
     class Config:
         orm_mode = True
+class Candidate(CandidateBase):
+    id : int = None
+    position : Position = None
+    party : Party = None
+    county : County = None
+    deputy : Union[Candidate, None] = None
+    class Config:
+        orm_mode = True
+
 class UserBase(BaseModel):
     username : str
 
@@ -75,4 +97,5 @@ class Session(SessionBase):
     id : int
     class Config:
         orm_mode = True
+
 

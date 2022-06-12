@@ -29,15 +29,42 @@ def create_user(db: Session, usr : schemas.UserCreate):
     db.commit()
     db.refresh(db_user)
     return db_user
+def update_candidate(db: Session, candi: schemas.CandidateUpdate):
+    storeobj = db.query(models.Candidate).filter_by(id=candi.id).first()
+    candi_data = candi.dict(exclude_unset=True)
+    for key, value in candi_data.items():
+            setattr(storeobj, key, value)
+    db.add(storeobj)
+    db.commit()
+    db.refresh(storeobj)
+    return storeobj
 def create_candidate(db: Session, candi: schemas.CandidateCreate):
     db_candidate= models.Candidate(**candi.dict())
     db.add(db_candidate)
     db.commit()
     db.refresh(db_candidate)
     return db_candidate
+def del_candidate(db: Session,id : int):
+    delobj = db.query(models.Candidate).filter_by(id=id).first()
+    db.delete(delobj)
+    db.commit()
+    return id
 def create_party(db: Session, party: schemas.PartyCreate):
     db_party= models.Party(**party.dict())
     db.add(db_party)
     db.commit()
     db.refresh(db_party)
     return db_party
+def create_county(db: Session, county: schemas.CountyCreate):
+    db_county= models.County(**county.dict())
+    db.add(db_county)
+    db.commit()
+    db.refresh(db_county)
+def create_counties(db: Session, counties: List[schemas.CountyCreate]):
+    for county in counties:
+        db_county = models.County(**county.dict())
+        db.add(db_county)
+    db.commit()
+    return db.query(models.County).all()
+def get_db_counties(db: Session):
+    return db.query(models.County).all()

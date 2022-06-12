@@ -1,9 +1,9 @@
 from decimal import Decimal
 from turtle import position
 from typing_extensions import Required
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Date
-from sqlalchemy.orm import relationship
-
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Date, DECIMAL
+from sqlalchemy.orm import relationship, backref
+from datetime import datetime
 from .database import Base
 
 
@@ -38,11 +38,19 @@ class Candidate(Base):
     dateofbirth = Column(Date)
     imageurl = Column(String) 
     is_active = Column(Boolean, default=True)
+    won = Column(Boolean, default=False)
+    slogan = Column(String)
+    color = Column(String)
     position_id = Column(Integer, ForeignKey("positions.id"))
     party_id = Column(Integer, ForeignKey("parties.id"))
+    county_id = Column(Integer, ForeignKey("counties.id"), nullable=True)
+    deputy_id = Column(Integer, ForeignKey("candidates.id"), nullable=True)
 
     party = relationship("Party", back_populates="candidates")
     position = relationship("Position", back_populates="candidt")
+    county = relationship("County", back_populates="candidate")
+    deputy  = relationship("Candidate")
+    statsdtcan = relationship("StatsData", back_populates="datacandidate")  
 
 class Position(Base):
     __tablename__ = "positions"
@@ -64,3 +72,46 @@ class Sessions(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     userid = Column(Integer, ForeignKey('user.id'))
     sessiontoken =  Column(String)
+class County(Base):
+    __tablename__ = "counties"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    code =  Column(String, unique=True, index=True)
+    name =  Column(String, unique=True, index=True)
+    candidate = relationship("Candidate", back_populates="county")
+##keep a list of all statistics source
+class StatsSource(Base):
+    __tablename__ = "statsources"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    code =  Column(String, unique=True, index=True)
+    name =  Column(String, unique=True, index=True)
+
+    statsbatch = relationship("StatsBatch", back_populates="statssource")
+class StatsBatch(Base):
+    __tablename__ = "statsbatch"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    batchname =  Column(String, unique=True, index=True)
+    batchdate = Column(Date,  default=datetime.now)
+    statssource_id = Column(Integer, ForeignKey("statsources.id"))
+    statssource = relationship("StatsSource", back_populates="statsbatch")
+
+    statsdata  = relationship("StatsData", back_populates="statsbatch")
+class StatsData(Base):
+    __tablename__ = "statsdata"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    candidate_id = Column(Integer, ForeignKey("candidates.id"))
+    statsbatch_id = Column(Integer, ForeignKey("statsbatch.id"))
+    votes = Column(DECIMAL)
+    datacandidate = relationship("Candidate", back_populates="statsdtcan")
+    statsbatch = relationship("StatsBatch", back_populates="statsdata")
+
+class DefaultsData(Base):
+    __tablename__ = "defaultsdata"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    totalvotes = Column(DECIMAL)
+    electiondate = Column(Date)
+
+
+
+
+
+

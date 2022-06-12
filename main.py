@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+from doctest import debug
+from imp import reload
 from typing import Union, List
 
 from fastapi import Depends, FastAPI, HTTPException, status
@@ -19,7 +21,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # openssl rand -hex 32
 SECRET_KEY = "cfd4cf823c32453770673729540f61ee70ccb940474ea7c1e455bfd52a6fe292"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 3600
 origins = [
     "http://localhost:3000",
 ]
@@ -40,6 +42,7 @@ def get_db():
 class Token(BaseModel):
     access_token: str
     token_type: str
+    user: schemas.User
 
 
 class TokenData(BaseModel):
@@ -127,7 +130,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "user" : user}
 
 
 @app.get("/users/", response_model=schemas.User)
@@ -136,41 +139,60 @@ async def read_users_me(current_user: schemas.User = Depends(get_current_active_
 @app.get("/hashedpassword", response_model=str)
 async def get_hashed_password(password : str):
     return get_password_hash(password=password)
-
+@app.get("/", response_model=str)
+async def index():
+    return 'Hello'
 @app.get("/verifypassword", response_model=str)
 async def confirm_hashed_password(password : str, hashedpassword : str):
     if verify_password(password, hashedpassword):
         return "Found"
     return "Not Found"
 @app.post("/user/add", response_model=schemas.User)
-async def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+async def create_user(user: schemas.UserCreate, db: Session = Depends(get_db),current_user: schemas.User = Depends(get_current_active_user)):
     return crud.create_user(db,user)  
+@app.delete("/candidate/remove", response_model=int)
+async def update_candidate(id: int, db: Session = Depends(get_db), current_user: schemas.User = Depends(get_current_active_user)):
+    return crud.del_candidate(db,id)     
+@app.put("/candidate/update", response_model=schemas.Candidate)
+async def update_candidate(candidate: schemas.CandidateUpdate, db: Session = Depends(get_db), current_user: schemas.User = Depends(get_current_active_user)):
+    return crud.update_candidate(db,candidate)  
 @app.post("/candidate/add", response_model=schemas.Candidate)
-async def create_candidate(candidate: schemas.CandidateCreate, db: Session = Depends(get_db)):
+async def create_candidate(candidate: schemas.CandidateCreate, db: Session = Depends(get_db), current_user: schemas.User = Depends(get_current_active_user)):
     return crud.create_candidate(db,candidate)  
 @app.get("/getcandidates", response_model=List[schemas.Candidate])
 async def get_candidates(db: Session = Depends(get_db)):
     return crud.get_db_candidates(db)
 @app.get("/getcandidate", response_model=schemas.Candidate)
-async def get_candidate(codestr : str, db: Session = Depends(get_db)):
+async def get_candidate(codestr : str, db: Session = Depends(get_db) ):
     return crud.get_db_candidate(db, codestr)
 @app.get("/positions/", response_model=List[schemas.Position])
 def read_positions(db: Session = Depends(get_db)):
     return crud.get_position(db) 
 @app.post("/position/add/", response_model=schemas.Position)
-def create_position(position: schemas.PositionCreate, db: Session = Depends(get_db)):
-    return crud.create_position(db=db, posi=position)  
+def create_position(position: schemas.PositionCreate, db: Session = Depends(get_db),current_user: schemas.User = Depends(get_current_active_user)):
+    return crud.create_position(db=db, posi=position) 
+## Parties 
 @app.get("/parties/", response_model=List[schemas.Party])
 def read_parties(db: Session = Depends(get_db)):
     return crud.get_db_parties(db) 
 @app.post("/party/add/", response_model=schemas.Party)
-def create_party(party: schemas.PartyCreate, db: Session = Depends(get_db)):
+def create_party(party: schemas.PartyCreate, db: Session = Depends(get_db),current_user: schemas.User = Depends(get_current_active_user)):
     return crud.create_party(db, party)  
 @app.post("/party/addmany/", response_model=List[schemas.Position])
-def create_many_parties(parties: List[schemas.PartyCreate], db: Session = Depends(get_db)):
+def create_many_parties(parties: List[schemas.PartyCreate], db: Session = Depends(get_db),current_user: schemas.User = Depends(get_current_active_user)):
     return crud.create_parties(db, parties)
+##Counties
+@app.get("/counties/", response_model=List[schemas.County])
+def read_counties(db: Session = Depends(get_db)):
+    return crud.get_db_counties(db) 
+@app.post("/county/add/", response_model=schemas.County)
+def create_county(county: schemas.CountyCreate, db: Session = Depends(get_db),current_user: schemas.User = Depends(get_current_active_user)):
+    return crud.create_county(db, county)  
+@app.post("/county/addmany/", response_model=List[schemas.County])
+def create_many_counties(counties: List[schemas.CountyCreate], db: Session = Depends(get_db),current_user: schemas.User = Depends(get_current_active_user)):
+    return crud.create_counties(db, counties)
 ##@app.get("/users/me/items/")
 ##async def read_own_items(current_user: User = Depends(get_current_active_user)):
  ##   return [{"item_id": "Foo", "owner": current_user.username
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+if __name__ == '__main__':
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug", debug=True,reload=False)
