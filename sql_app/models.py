@@ -49,7 +49,7 @@ class Candidate(Base):
     party = relationship("Party", back_populates="candidates")
     position = relationship("Position", back_populates="candidt")
     county = relationship("County", back_populates="candidate")
-    deputy  = relationship("Candidate")
+    deputy  = relationship("Candidate", remote_side=[id])
     statsdtcan = relationship("StatsData", back_populates="datacandidate")  
 
 class Position(Base):

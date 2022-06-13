@@ -162,6 +162,14 @@ async def create_candidate(candidate: schemas.CandidateCreate, db: Session = Dep
 @app.get("/getcandidates", response_model=List[schemas.Candidate])
 async def get_candidates(db: Session = Depends(get_db)):
     return crud.get_db_candidates(db)
+
+@app.get("/getcandidatesfilter", response_model=List[schemas.Candidate])
+async def get_candidates_filter(positionid: int,countyid : int,db: Session = Depends(get_db)):
+    return crud.get_db_candidates_filter(db, positionid, countyid)
+
+@app.get("/getcandidatesbyposition", response_model=List[schemas.Candidate])
+async def get_candidates_by_position(positionid: int,db: Session = Depends(get_db)):
+    return crud.get_db_candidates_by_position(db, positionid)
 @app.get("/getcandidate", response_model=schemas.Candidate)
 async def get_candidate(codestr : str, db: Session = Depends(get_db) ):
     return crud.get_db_candidate(db, codestr)

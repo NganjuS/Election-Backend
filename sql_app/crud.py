@@ -5,10 +5,18 @@ def get_db_user(db: Session, username : str):
     return db.query(models.User).filter_by(username=username).first()
 def get_db_candidates(db: Session):
     return db.query(models.Candidate).all()
+def get_db_candidates_by_position(db: Session,positionid : int ):
+    return db.query(models.Candidate).filter_by(position_id = positionid).all()
+def get_db_candidates_filter(db: Session,positionid : int, countyid : int ):
+    if(countyid == 0):
+        return db.query(models.Candidate).filter_by(position_id = positionid).all()
+    else:
+        return db.query(models.Candidate).filter_by(position_id = positionid, county_id = countyid).all()
+    
 def get_db_candidate(db: Session, codestr : str):
     return db.query(models.Candidate).filter_by(short_code =codestr).first()
 def get_db_parties(db: Session):
-    return db.query(models.Party).all()
+    return db.query(models.Party).order_by(models.Party.name).all()
 def get_position(db: Session):
     return db.query(models.Position).all()
 def create_parties(db: Session, parties: List[schemas.PartyCreate]):
