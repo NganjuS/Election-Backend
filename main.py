@@ -199,6 +199,19 @@ def create_county(county: schemas.CountyCreate, db: Session = Depends(get_db),cu
 @app.post("/county/addmany/", response_model=List[schemas.County])
 def create_many_counties(counties: List[schemas.CountyCreate], db: Session = Depends(get_db),current_user: schemas.User = Depends(get_current_active_user)):
     return crud.create_counties(db, counties)
+
+@app.get("/defaultsdata/", response_model=schemas.DefaultsData)
+def read_defaultsdata(db: Session = Depends(get_db)):
+    return crud.get_defaultsettings(db)
+
+@app.post("/defaultsdata/", response_model=schemas.DefaultsData)
+def post_defaultsdata(dftsdata : schemas.DefaultsDataCreate,db: Session = Depends(get_db),current_user: schemas.User = Depends(get_current_active_user)):
+    return crud.post_defaultsettings(dftsdata,db)
+
+@app.put("/defaultsdata/", response_model=schemas.DefaultsData)
+def update_defaultsdata(dftsdata : schemas.DefaultsDataUpdate,db: Session = Depends(get_db),current_user: schemas.User = Depends(get_current_active_user)):
+    return crud.update_dftsettings(dftsdata,db)
+
 ##@app.get("/users/me/items/")
 ##async def read_own_items(current_user: User = Depends(get_current_active_user)):
  ##   return [{"item_id": "Foo", "owner": current_user.username

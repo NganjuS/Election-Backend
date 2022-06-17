@@ -1,7 +1,8 @@
 from __future__ import annotations
-from datetime import date
+from datetime import date, datetime
 from dis import show_code
 from typing import List, Optional,Union
+from unicodedata import decimal
 
 
 from pydantic import BaseModel
@@ -97,5 +98,21 @@ class Session(SessionBase):
     id : int
     class Config:
         orm_mode = True
+
+class DefaultsDataBase(BaseModel):
+    totalvotes : float
+    electiondate : date
+
+class DefaultsDataCreate(DefaultsDataBase):
+    pass
+class DefaultsDataUpdate(DefaultsDataBase):
+    id : int
+    class Config:
+        orm_mode = True
+class DefaultsData(DefaultsDataBase):
+    id : int
+    class Config:
+        orm_mode = True
+
 
 

@@ -15,6 +15,7 @@ def get_db_candidates_filter(db: Session,positionid : int, countyid : int ):
     
 def get_db_candidate(db: Session, codestr : str):
     return db.query(models.Candidate).filter_by(short_code =codestr).first()
+
 def get_db_parties(db: Session):
     return db.query(models.Party).order_by(models.Party.name).all()
 def get_position(db: Session):
@@ -68,6 +69,7 @@ def create_county(db: Session, county: schemas.CountyCreate):
     db.add(db_county)
     db.commit()
     db.refresh(db_county)
+    return db_county
 def create_counties(db: Session, counties: List[schemas.CountyCreate]):
     for county in counties:
         db_county = models.County(**county.dict())
@@ -76,3 +78,22 @@ def create_counties(db: Session, counties: List[schemas.CountyCreate]):
     return db.query(models.County).all()
 def get_db_counties(db: Session):
     return db.query(models.County).all()
+
+## get settings
+def get_defaultsettings(db: Session):
+    return db.query(models.DefaultsData).first()
+def post_defaultsettings(dftdata: schemas.DefaultsDataCreate,db: Session):
+    db_dftsettings = models.DefaultsData(**dftdata.dict())
+    db.add(db_dftsettings)
+    db.commit()
+    db.refresh(db_dftsettings)
+    return db_dftsettings
+def update_dftsettings(dftdata: schemas.DefaultsDataUpdate,db: Session):
+    dftobj = db.query(models.DefaultsData).filter_by(id=dftdata.id).first()
+    dftdata_ex = dftdata.dict(exclude_unset=True)
+    for key, value in dftdata_ex.items():
+            setattr(dftobj, key, value)
+    db.add(dftobj)
+    db.commit()
+    db.refresh(dftobj)
+    return dftobj

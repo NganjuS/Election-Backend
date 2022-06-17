@@ -1,7 +1,7 @@
 from decimal import Decimal
 from turtle import position
 from typing_extensions import Required
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Date, DECIMAL
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Date, DECIMAL, DateTime
 from sqlalchemy.orm import relationship, backref
 from datetime import datetime
 from .database import Base
@@ -84,31 +84,32 @@ class StatsSource(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     code =  Column(String, unique=True, index=True)
     name =  Column(String, unique=True, index=True)
+    statsdata = relationship("StatsData", back_populates="statssource")
 
-    statsbatch = relationship("StatsBatch", back_populates="statssource")
-class StatsBatch(Base):
-    __tablename__ = "statsbatch"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    batchname =  Column(String, unique=True, index=True)
-    batchdate = Column(Date,  default=datetime.now)
-    statssource_id = Column(Integer, ForeignKey("statsources.id"))
-    statssource = relationship("StatsSource", back_populates="statsbatch")
-
-    statsdata  = relationship("StatsData", back_populates="statsbatch")
 class StatsData(Base):
     __tablename__ = "statsdata"
     id = Column(Integer, primary_key=True, autoincrement=True)
     candidate_id = Column(Integer, ForeignKey("candidates.id"))
     statsbatch_id = Column(Integer, ForeignKey("statsbatch.id"))
+    batchname =  Column(String, unique=True, index=True)
+    batchdate = Column(DateTime,  default=datetime.now)
     votes = Column(DECIMAL)
     datacandidate = relationship("Candidate", back_populates="statsdtcan")
-    statsbatch = relationship("StatsBatch", back_populates="statsdata")
+    statssource_id = Column(Integer, ForeignKey("statsources.id"))
+    statssource = relationship("StatsSource", back_populates="statsdata")
 
 class DefaultsData(Base):
     __tablename__ = "defaultsdata"
     id = Column(Integer, primary_key=True, autoincrement=True)
     totalvotes = Column(DECIMAL)
-    electiondate = Column(Date)
+    electiondate = Column(DateTime)
+
+class StatsBatch(Base):
+    __tablename__ = "statsbatch"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    batchname =  Column(String, unique=True, index=True)
+    batchdate = Column(Date,  default=datetime.now)
+    
 
 
 
