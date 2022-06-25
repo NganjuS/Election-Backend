@@ -1,7 +1,7 @@
 from decimal import Decimal
 from turtle import position
 from typing_extensions import Required
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Date, DECIMAL, DateTime
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Date, DECIMAL, DateTime, UniqueConstraint
 from sqlalchemy.orm import relationship, backref
 from datetime import datetime
 from .database import Base
@@ -25,7 +25,8 @@ class Party(Base):
     is_active = Column(Boolean, default=True)
     is_coalition = Column(Boolean, default=True)
     candidates = relationship("Candidate", back_populates="party")
-
+    coalition_id = Column(Integer, ForeignKey("parties.id"), nullable=True)
+    coalition  = relationship("Party", remote_side=[id])
 
 class Candidate(Base):
     __tablename__ = "candidates"
@@ -89,9 +90,13 @@ class StatsSource(Base):
 
 class StatsData(Base):
     __tablename__ = "statsdata"
+    __table_args__ = (
+        # this can be db.PrimaryKeyConstraint if you want it to be a primary key
+            UniqueConstraint('candidate_id', 'batchname'),
+      )
     id = Column(Integer, primary_key=True, autoincrement=True)
     candidate_id = Column(Integer, ForeignKey("candidates.id"))
-    batchname =  Column(String, unique=True, index=True)
+    batchname =  Column(String, index=True)
     batchdate = Column(DateTime,  default=datetime.now)
     votes = Column(DECIMAL)
     datacandidate = relationship("Candidate", back_populates="statsdtcan")

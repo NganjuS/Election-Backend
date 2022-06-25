@@ -15,7 +15,8 @@ def get_db_candidates_filter(db: Session,positionid : int, countyid : int ):
     
 def get_db_candidate(db: Session, codestr : str):
     return db.query(models.Candidate).filter_by(short_code =codestr).first()
-
+def get_db_candidatebyid(db: Session,_id : int):
+    return db.query(models.Candidate).filter_by(id=_id).first()
 def get_db_parties(db: Session):
     return db.query(models.Party).order_by(models.Party.name).all()
 def create_parties(db: Session, parties: List[schemas.PartyCreate]):
@@ -109,6 +110,8 @@ def create_statssource(db: Session, sourc: schemas.StatsSourceCreate):
 
 def get_db_statsdata(db: Session):
     return db.query(models.StatsData).all()
+def get_db_statsdata_filtered(db: Session, srcid : int):
+    return db.query(models.StatsData).filter_by(statssource_id=srcid).order_by(models.StatsData.batchdate.desc(), models.StatsData.votes.desc() ).limit(2).all()
 def create_statsdata(db: Session, dt: schemas.StatsData):
     db_statsdata = models.StatsData(**dt.dict())
     db.add(db_statsdata)

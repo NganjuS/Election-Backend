@@ -21,10 +21,12 @@ class PartyBase(BaseModel):
     officelocation : Union[str, None] = None
     is_active : bool
     is_coalition : bool
+    coalition_id : Union[int,None]
 class PartyCreate(PartyBase):
     pass
 class Party(PartyBase):
     id : int
+    coalition : Party = None
     class Config:
         orm_mode = True
 class CountyBase(BaseModel):
@@ -132,13 +134,14 @@ class StatsDataBase(BaseModel):
     batchdate : Union[date, None]
     votes : float
     statssource_id : int
-    datacandidate : Candidate
-    statssource : StatsSource
+    
 
 class StatsDataCreate(StatsDataBase):
     pass
 class StatsData(StatsDataBase):
     id : int
+    datacandidate : Candidate
+    statssource : StatsSource
     class Config:
         orm_mode = True
 

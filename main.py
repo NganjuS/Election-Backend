@@ -173,6 +173,9 @@ async def get_candidates_by_position(positionid: int,db: Session = Depends(get_d
 @app.get("/getcandidate", response_model=schemas.Candidate)
 async def get_candidate(codestr : str, db: Session = Depends(get_db) ):
     return crud.get_db_candidate(db, codestr)
+@app.get("/getcandidatebyid", response_model=schemas.Candidate)
+async def get_candidate_by_id(id : int, db: Session = Depends(get_db) ):
+    return crud.get_db_candidatebyid(db, id)
 @app.get("/positions/", response_model=List[schemas.Position])
 def read_positions(db: Session = Depends(get_db)):
     return crud.get_position(db) 
@@ -219,7 +222,9 @@ def post_statssource(statssrcdt : schemas.StatsSourceCreate,db: Session = Depend
 @app.get("/statsdata/", response_model=List[schemas.StatsData])
 def read_statsdata(db: Session = Depends(get_db)):
     return crud.get_db_statsdata(db)
-
+@app.get("/statsdatabysrc/", response_model=List[schemas.StatsData])
+def get_statsdata_by_src(id : int,db: Session = Depends(get_db)):
+    return crud.get_db_statsdata_filtered(db, id)
 @app.post("/statsdata/", response_model=schemas.StatsData)
 def post_statsdata(stsdata : schemas.StatsDataCreate,db: Session = Depends(get_db),current_user: schemas.User = Depends(get_current_active_user)):
     return crud.create_statsdata(db, stsdata)   
