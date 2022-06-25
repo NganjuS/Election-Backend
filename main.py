@@ -208,6 +208,22 @@ def read_defaultsdata(db: Session = Depends(get_db)):
 def post_defaultsdata(dftsdata : schemas.DefaultsDataCreate,db: Session = Depends(get_db),current_user: schemas.User = Depends(get_current_active_user)):
     return crud.post_defaultsettings(dftsdata,db)
 
+@app.get("/statssource/", response_model=List[schemas.StatsSource])
+def read_statssource(db: Session = Depends(get_db)):
+    return crud.get_db_statssource(db)
+
+@app.post("/statssource/", response_model=schemas.StatsSource)
+def post_statssource(statssrcdt : schemas.StatsSourceCreate,db: Session = Depends(get_db),current_user: schemas.User = Depends(get_current_active_user)):
+    return crud.create_statssource(db,statssrcdt)
+
+@app.get("/statsdata/", response_model=List[schemas.StatsData])
+def read_statsdata(db: Session = Depends(get_db)):
+    return crud.get_db_statsdata(db)
+
+@app.post("/statsdata/", response_model=schemas.StatsData)
+def post_statsdata(stsdata : schemas.StatsDataCreate,db: Session = Depends(get_db),current_user: schemas.User = Depends(get_current_active_user)):
+    return crud.create_statsdata(db, stsdata)   
+
 @app.put("/defaultsdata/", response_model=schemas.DefaultsData)
 def update_defaultsdata(dftsdata : schemas.DefaultsDataUpdate,db: Session = Depends(get_db),current_user: schemas.User = Depends(get_current_active_user)):
     return crud.update_dftsettings(dftsdata,db)

@@ -4,7 +4,7 @@ from . import models, schemas
 def get_db_user(db: Session, username : str):
     return db.query(models.User).filter_by(username=username).first()
 def get_db_candidates(db: Session):
-    return db.query(models.Candidate).all()
+    return db.query(models.Candidate).order_by(models.Candidate.position_id).all()
 def get_db_candidates_by_position(db: Session,positionid : int ):
     return db.query(models.Candidate).filter_by(position_id = positionid).all()
 def get_db_candidates_filter(db: Session,positionid : int, countyid : int ):
@@ -18,14 +18,15 @@ def get_db_candidate(db: Session, codestr : str):
 
 def get_db_parties(db: Session):
     return db.query(models.Party).order_by(models.Party.name).all()
-def get_position(db: Session):
-    return db.query(models.Position).all()
 def create_parties(db: Session, parties: List[schemas.PartyCreate]):
     for party in parties:
         db_party = models.Party(**party.dict())
         db.add(db_party)
     db.commit()
     return db.query(models.Party).all()
+def get_position(db: Session):
+    return db.query(models.Position).all()
+
 def create_position(db: Session, posi: schemas.PositionCreate):
     db_position= models.Position(**posi.dict())
     db.add(db_position)
@@ -97,3 +98,19 @@ def update_dftsettings(dftdata: schemas.DefaultsDataUpdate,db: Session):
     db.commit()
     db.refresh(dftobj)
     return dftobj
+
+def get_db_statssource(db: Session):
+    return db.query(models.StatsSource).all()
+def create_statssource(db: Session, sourc: schemas.StatsSourceCreate):
+    db_statssrc = models.StatsSource(**sourc.dict())
+    db.add(db_statssrc)
+    db.commit()
+    db.refresh(db_statssrc)
+
+def get_db_statsdata(db: Session):
+    return db.query(models.StatsData).all()
+def create_statsdata(db: Session, dt: schemas.StatsData):
+    db_statsdata = models.StatsData(**dt.dict())
+    db.add(db_statsdata)
+    db.commit()
+    db.refresh(db_statsdata)

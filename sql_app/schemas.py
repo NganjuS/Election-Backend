@@ -114,5 +114,33 @@ class DefaultsData(DefaultsDataBase):
     class Config:
         orm_mode = True
 
+class StatsSourceBase(BaseModel):
+    code : str
+    name: str
+    website : str
+
+class StatsSourceCreate(StatsSourceBase):
+    pass
+class StatsSource(StatsSourceBase):
+    id : int
+    class Config:
+        orm_mode = True
+
+class StatsDataBase(BaseModel):
+    candidate_id : int
+    batchname :  str
+    batchdate : Union[date, None]
+    votes : float
+    statssource_id : int
+    datacandidate : Candidate
+    statssource : StatsSource
+
+class StatsDataCreate(StatsDataBase):
+    pass
+class StatsData(StatsDataBase):
+    id : int
+    class Config:
+        orm_mode = True
+
 
 

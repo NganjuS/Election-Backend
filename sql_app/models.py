@@ -84,13 +84,13 @@ class StatsSource(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     code =  Column(String, unique=True, index=True)
     name =  Column(String, unique=True, index=True)
+    website = Column(String)
     statsdata = relationship("StatsData", back_populates="statssource")
 
 class StatsData(Base):
     __tablename__ = "statsdata"
     id = Column(Integer, primary_key=True, autoincrement=True)
     candidate_id = Column(Integer, ForeignKey("candidates.id"))
-    statsbatch_id = Column(Integer, ForeignKey("statsbatch.id"))
     batchname =  Column(String, unique=True, index=True)
     batchdate = Column(DateTime,  default=datetime.now)
     votes = Column(DECIMAL)
